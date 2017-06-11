@@ -1,0 +1,120 @@
+---
+title: 'Part2:Part 2: Basic_Inferential_Data_ Analysis'
+author: "Aleksander Petrovskii"
+date: "June 11, 2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls(all=TRUE))
+library(ggplot2)
+```
+## Overview
+***
+The purpose of the this data analysis is to analyze the ToothGrowth data set by comparing the guinea tooth growth by supplement and dose. First, I will do exploratory data analysis on the data set. Then I will do the comparison with confidence intervals in order to make conclusions about the tooth growth.
+
+## Exploring the Data (Question 1 and 2)
+***  
+#### Load data
+```{r echo=TRUE}
+
+library(datasets)
+data(ToothGrowth)
+str(ToothGrowth)
+```
+#### Look at data
+
+```{r echo=TRUE}
+head(ToothGrowth)
+
+```
+
+#### Provide basic summary of dataset
+
+```{r echo=TRUE}
+summary(ToothGrowth)
+```
+#### Combining the dosage and the delivery method to analyse the statistical data
+
+```{r echo=TRUE}
+    by(ToothGrowth$len, INDICES = list(ToothGrowth$supp, ToothGrowth$dose), summary)
+
+```
+
+
+#### Look at possible relation between tooth length and delivery methods
+
+```{r echo=TRUE}
+ggplot(data=ToothGrowth, aes(x=as.factor(dose), y=len, fill=supp)) +
+  geom_boxplot() +
+  facet_grid(. ~ supp) +
+  xlab("Dosage (miligrams)") +
+  ylab("Tooth length") +
+  guides(fill=guide_legend(title="Supplement type"))
+
+```
+  
+####  Look at possible relation between tooth length vs the delivery methods  by dose amount
+   
+```{r echo=TRUE}
+ggplot(ToothGrowth, aes(x=supp, y=len)) +
+        geom_boxplot(aes(fill=factor(supp)))+
+        geom_point() +
+        facet_grid(.~dose) +
+        xlab("Supplement Delivery") + 
+        ylab("Tooth Length") + 
+        theme(plot.title = element_text(hjust = 0.5)) +
+        ggtitle("Tooth Length by Supp & Dosage")
+
+```
+
+
+
+## Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose (Question 3)
+***    
+#### First, let`s analyze Dosage as a factor
+
+```{r echo=TRUE}
+    dosage_1 <- subset(ToothGrowth, dose %in% c(0.5, 1.0))
+    dosage_2 <- subset(ToothGrowth, dose %in% c(1.0, 2.0))
+    dosage_3 <- subset(ToothGrowth, dose %in% c(0.5, 2.0))
+    ```
+#### For dosage from 0.5 to 1.0 (milligrams)
+```{r echo=TRUE}
+t.test(len ~ dose, paired = F, var.equal = F, data = dosage_1)
+
+```
+#### For dosage from 1.0 to 2.0 (milligrams)
+```{r echo=TRUE}
+t.test(len ~ dose, paired = F, var.equal = F, data = dosage_2)
+
+```
+#### For dosage from 0.5 to 2.0 (milligrams)
+```{r echo=TRUE}
+t.test(len ~ dose, paired = F, var.equal = F, data = dosage_3)
+
+```
+
+### Second, let`s analyze Supplement as a factor
+***   
+```{r echo=TRUE}
+t.test(len ~ supp, paired = F, var.equal = F, data = ToothGrowth)
+```
+## Conclusions and assumptions (Question 3)  
+***   
+#### Assumptions
+1. For Dosage as a factor the confidence intervals ([-11.98, -6.276] for doses 0.5 and 1.0, [-18.16, -12.83], and [-8.996, -3.734] for doses 1.0 and 2.0) and for doses 0.5 and 2.0,  allow for the rejection of the null hypothesis and a confirmation that there is a significant correlation between tooth length and dose levels.
+2. For Supplement as a factor the confidence interval of [-0.171, 7.571] does not allow us to reject the null hypothesis (that there is no correlation between delivery method and tooth length).
+
+
+#### Conclusions
+1. Increasing the dose level leads to increased tooth growth
+2. Supplement type has no effect on tooth growth.
+
+
+
+
+
